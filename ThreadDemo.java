@@ -17,9 +17,8 @@ class ThreadDemo{
 	}
 
 	private static void outOfMemoryDemo() {
-		final AtomicInteger i = new AtomicInteger(0);
 		List<Thread> ts = new ArrayList<Thread>();
-		for(int j = 0; j < 1000000; j++){
+		for(int j = 0; j < 25000; j++){
  			Thread t = new Thread(() -> {
  				try{
  				Thread.sleep(5000);
