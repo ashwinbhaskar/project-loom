@@ -52,6 +52,34 @@ To combat the problem of composibility, `CompletableFuture` was introduced into 
 - Though futures solving the problem of composibility, they are still a library construct. That means they will go `viral` in your code base. All your functions right from the handler to the database layer need to return futures.
 - They still don't solve the problem of `Loss of context` mentioned above. The exception stacktraces are not useful because the composed futures would all be computed on different threads.
 
+```
+import scala.concurrent.Future
+import scala.util.{Success, Failure}
+
+case class UserDetails(name: String, phone: String, age: Int)
+
+case class UPIResponse(bankName: String, bankID: String, lastTransactionOn: java.time.Instant)
+
+def fetchUserDetails(userId: UserID): Future[UserDetails] = ???
+
+def fetchUPIDetails(phone: String): Future[UPIResponse] = ???
+
+def isBankPaymentWorking(bankID: String): Future[Boolean] = ???
+
+val userID: UserID = ???
+
+/*
+The 3 API calls are sequential but they are not guaranteed to run on the same underlying OS thread.
+*/
+fetchUserDetails(userID)
+  .flatMap(userDetails => fetchUPIDetails(userDetails.phone))
+  .flatMap(upiResponse => isBankPaymentWorking(upiResponse.bankID))
+  .onComplete {
+    case Success(isWorking) => println("The bank's payment is working")
+    case Failure(exception) => println(exception.getStackTrace)
+  }
+```
+
 ### In comes Project Loom
 
 Project loom brings in green threads to the JVM. These green threads are called virtual threads. They DO NOT map 1:1 to the OS Threads. So, a programmer is free to create as many virtual threads as they want. We will refer to these threads as Virtual Threads.
