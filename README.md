@@ -89,4 +89,5 @@ Virtual Threads now become the new unit of concurrency in JVM. The developer nee
 - Creating and blocking virtual threads is cheap
 - This is because they do not map 1:1 to OS Threads
 - JVM can support millions of virtual threads, allowing you to map the unit of concurrency of the application domain to the unit of concurrency in the runtime.
+- Allows you to write non-blocking code in the blocking style
 
