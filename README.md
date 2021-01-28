@@ -16,10 +16,33 @@ In an HTTP server you can think of Request handling as an independent task. Requ
 An HTTP server (written with blocking IO), will allocate a JVM Thread to each incoming request from a pool of JVM Threads. The JVM Thread will execute your code sequentially. An example:
 
 ```
-validate(request) // JVM thread is in action
-fetchDataFromDB(request) // JVM thread is blocked
-makeExternalAPICall() // JVM thread is blocked
-giveResponse() // JVM thread is in action
+import scala.util.Try
+
+type UserID = String
+
+case class UserDetails(name: String, phone: String, age: Int)
+
+case class UPIResponse(bankName: String, bankID: String,lastTransactionOn: java.time.Instant)
+
+def fetchUserDetails(userId: UserID): Try[UserDetails] = ???
+
+def fetchUPIDetails(phone: String): Try[UPIResponse] = ???
+
+def isBankPaymentWorking(bankID: String): Try[Boolean] = ???
+
+val userID: UserID = ???
+
+val result: Try[Boolean] = 
+  fetchUserDetails(userID) // JVM Thread is blocked
+    .flatMap(userDetails => fetchUPIDetails(userDetails.phone)) // JVM Thread is blocked
+    .flatMap(upiResponse => isBankPaymentWorking(upiResponse.bankID)) // JVM Thread is blocked
+
+result match {
+  case Success(isPaymentWorking) => println(isPaymentWorking)
+  case Failure(e) => e.printStackTrace
+}
+
+
 ```
 If you look at the the functions `fetchDataFromDB()` and `makeExternalAPICall()` you will notice that the thread is not doing any work there. It is just waiting. This IO is referred to as `Blocking IO`.
 
@@ -56,6 +79,8 @@ To combat the problem of composibility, `CompletableFuture` was introduced into 
 import scala.concurrent.Future
 import scala.util.{Success, Failure}
 
+type UserID = String
+
 case class UserDetails(name: String, phone: String, age: Int)
 
 case class UPIResponse(bankName: String, bankID: String, lastTransactionOn: java.time.Instant)
@@ -75,8 +100,8 @@ fetchUserDetails(userID)
   .flatMap(userDetails => fetchUPIDetails(userDetails.phone))
   .flatMap(upiResponse => isBankPaymentWorking(upiResponse.bankID))
   .onComplete {
-    case Success(isWorking) => println("The bank's payment is working")
-    case Failure(exception) => println(exception.getStackTrace)
+    case Success(isWorking) => println(s"The bank's payment is working? $isWorking")
+    case Failure(e) => e.printStackTrace
   }
 ```
 
@@ -89,5 +114,5 @@ Virtual Threads now become the new unit of concurrency in JVM. The developer nee
 - Creating and blocking virtual threads is cheap
 - This is because they do not map 1:1 to OS Threads
 - JVM can support millions of virtual threads, allowing you to map the unit of concurrency of the application domain to the unit of concurrency in the runtime.
-- Allows you to write non-blocking code in the blocking style
+- Allows you to write non-blocking code in the blocking style which preserves readability. The "async" part of it becomes a techinical detail.
 
