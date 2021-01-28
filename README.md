@@ -36,11 +36,12 @@ The problem with scaling JVM Threads is that JVM Threads are just thin wrappers 
 To combat the above problems asynchronous apis were introduced in the `java.nio` package. These go to great lengths to not block threads. The  thread is returned to the thread pool (with a callback registered) for the duration of the blocking call (external API or database call). There is an interrupt triggered when response is made available from the external call and the callback is invoked on another thread from the thread pool.
 
 ### Advantages of Async IO
- - We just made sure that we don't block any JVM threads (and in turn OS threads). They are all doing some work
+ - More efficient as we just made sure that we don't block any JVM threads (and in turn OS threads). They are all doing some work
  - We can now handle more requests as opposed to from when we were blocking threads
 
- ### Disadvantages of Async IO
+ ### The Problem
   - Async code is hard to reason about as a developer. Composing functions is not possible with callbacks. A lot of callbacks can lead to "Callback Hell"
+  - You can try to mimic composition by introducing a layer of abstraction above them like a `Future`. But then now it goes viral. Your code base, right from handler to the database layer must all return a `Future`.
   - Loss of context. The thread carrying out the task prior to the IO call and the thread carrying out the task after the IO call are not guaranteed to be the same. A random thread from the thread pool is picked up and assigned to execute the callback code. As the unit of concurrency on the JVM is a JVM Thread, thread locals, exception stack traces are all bound to the thread.
 
 ![call back hell](resources/callback_hell.png)
