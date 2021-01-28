@@ -41,10 +41,16 @@ To combat the above problems asynchronous apis were introduced in the `java.nio`
 
  ### The Problem
   - Async code is hard to reason about as a developer. Composing functions is not possible with callbacks. A lot of callbacks can lead to "Callback Hell"
-  - You can try to mimic composition by introducing a layer of abstraction above them like a `Future`. But then now it goes viral. Your code base, right from handler to the database layer must all return a `Future`.
   - Loss of context. The thread carrying out the task prior to the IO call and the thread carrying out the task after the IO call are not guaranteed to be the same. A random thread from the thread pool is picked up and assigned to execute the callback code. As the unit of concurrency on the JVM is a JVM Thread, thread locals, exception stack traces are all bound to the thread.
 
 ![call back hell](resources/callback_hell.png)
+
+### In comes Futures
+To combat the problem of composibility, `CompletableFuture` was introduced into the JDK. A `CompletableFuture<T>` will result in value of type `T` or an error. You could now have lots of futures doing many computations without worrying about hogging the underlying thread pool because of it's async nature.
+
+### The problem
+- Though futures solving the problem of composibility, they are still a library construct. That means they will go `viral` in your code base. All your functions right from the handler to the database layer need to return futures.
+- They still don't solve the problem of `Loss of context` mentioned above. The exception stacktraces are not useful because the composed futures would all be computed on different threads.
 
 ### In comes Project Loom
 
