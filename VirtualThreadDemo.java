@@ -16,7 +16,6 @@ class VirtualThreadDemo{
 	}
 
 	private static void outOfMemoryDemo() {
-		final AtomicInteger i = new AtomicInteger(0);
 		List<Thread> ts = new ArrayList<Thread>();
 		for(int j = 0; j < 1000000; j++){
  			Thread t = Thread.startVirtualThread(() -> {
@@ -37,7 +36,7 @@ class VirtualThreadDemo{
  			}
  		});
 
- 		System.out.println("There are " + ts.size() + "threads");
+ 		System.out.println(ts.size() + " threads have finished with their job");
 
 	}
 
