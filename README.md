@@ -43,7 +43,8 @@ def isBankPaymentWorking(bankID: String): Try[Boolean] = ???
 
 val userID: UserID = ???
 
-/*Here the JVM Thread is an OS Thread*/
+///Here the JVM Thread is an OS Thread
+
 val result: Try[Boolean] = 
   fetchUserDetails(userID) // JVM Thread is blocked
     .flatMap(userDetails => fetchUPIDetails(userDetails.phone)) // JVM Thread is blocked
