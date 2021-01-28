@@ -44,7 +44,7 @@ result match {
 
 
 ```
-If you look at the the functions `fetchDataFromDB()` and `makeExternalAPICall()` you will notice that the thread is not doing any work there. It is just waiting. This IO is referred to as `Blocking IO`.
+If you look at the the methods `fetchUserDetails` `fetchUPIDetails` and `isBankPaymentWorking` you will notice that the thread is not doing any work there. It is just waiting. This IO is referred to as `Blocking IO`.
 
 Looking back at the differences in unit of concurrency: if we need to increase the throughput, i.e, the number of requests being handled at given point of time, then we need to increase the number of JVM Threads. Sounds reasonable. A million requests handled by a million JVM Threads.
 
