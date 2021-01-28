@@ -68,12 +68,14 @@ To combat the above problems asynchronous apis were introduced in the `java.nio`
 
 ![call back hell](resources/callback_hell.png)
 
-### In comes Futures
+### In comes Future
 To combat the problem of composibility, `CompletableFuture` was introduced into the JDK. A `CompletableFuture<T>` will result in value of type `T` or an error. You could now have lots of futures doing many computations without worrying about hogging the underlying thread pool because of it's async nature.
 
 ### The problem
 - Though futures solving the problem of composibility, they are still a library construct. That means they will go `viral` in your code base. All your functions right from the handler to the database layer need to return futures.
 - They still don't solve the problem of `Loss of context` mentioned above. The exception stacktraces are not useful because the composed futures would all be computed on different threads.
+
+The example below shows `Future` in Scala which existed way before they were introduced in the JVM.
 
 ```
 import scala.concurrent.Future
