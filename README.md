@@ -1,6 +1,6 @@
 # project-loom
 
-Project loom is all about making concurrency easier (for developers) on the JVM. It is included in Java 16 and is still in experimental phase. Download the early access builds [here](https://jdk.java.net/loom/)
+Project loom is all about making concurrency easier (for developers) on the JVM. It is in experimental phase. Download the early access builds [here](https://jdk.java.net/loom/)
 
 ## Concurrency
 
