@@ -80,7 +80,7 @@ To combat the problem of composibility, `CompletableFuture` was introduced into 
 - Though futures solving the problem of composibility, they are still a library construct. That means they will go `viral` in your code base. All your functions right from the handler to the database layer need to return futures.
 - They still don't solve the problem of `Loss of context` mentioned above. The exception stacktraces are not useful because the composed futures would all be computed on different threads.
 
-The example below shows `Future` in Scala which existed way before they were introduced in the JVM.
+The example below shows `Future` in Scala which existed before they were introduced in Java.
 
 ```
 import scala.concurrent.Future
@@ -121,5 +121,22 @@ Virtual Threads now become the new unit of concurrency in JVM. The developer nee
 - Creating and blocking virtual threads is cheap
 - This is because they do not map 1:1 to OS Threads
 - JVM can support millions of virtual threads, allowing you to map the unit of concurrency of the application domain to the unit of concurrency in the runtime.
-- Allows you to write non-blocking code in the blocking style which preserves readability. The "async" part of it becomes a techinical detail.
+- Allows you to write non-blocking code in the blocking style which preserves readability. The "async" part is just an implementation detail.
 
+### Let us execute some code
+
+At the time of writing this readme, the latest jdk version was `jdk-17`. 
+
+The file `ThreadDemo.java` spins up 25,000 threads.
+```
+<path>/jdk-17.jdk/Contents/Home/bin/javac ThreadDemo.java
+<path>/jdk-17.jdk/Contents/Home/bin/java ThreadDemo
+```
+This most likely will throw a `java.lang.OutOfMemoryError` saying that it is unable to create a native thread.
+
+The file `VirtualThreadDemo.java` spins up a million Virtual Threads and the JVM exits smoothly. 
+
+```
+<path>/jdk-17.jdk/Contents/Home/bin/javac VirtualThreadDemo.java
+<path>/jdk-17.jdk/Contents/Home/bin/java VirtualThreadDemo
+```
