@@ -13,7 +13,18 @@ In an HTTP server you can think of Request handling as an independent task. Requ
  - For the underlying OS the unit of concurrency is the OS thread.
  - Unit of concurrency in the JVM is `java.lang.Thread`. We will refer to this as JVM Thread
 
-An HTTP server (written with blocking IO), will allocate a JVM Thread to each incoming request from a pool of JVM Threads. The JVM Thread will execute your code sequentially. An example:
+An HTTP server (written with blocking IO), will allocate a JVM Thread to each incoming request from a pool of JVM Threads. The JVM Thread will execute your code sequentially. 
+
+Looking back at the differences in unit of concurrency: if we need to increase the throughput, i.e, the number of requests being handled at given point of time, then we need to increase the number of JVM Threads. Sounds reasonable. A million requests handled by a million JVM Threads.
+
+### The Problem
+
+The problem with scaling JVM Threads is that JVM Threads are just thin wrappers around OS threads. JVM Thread and OS Thread have a 1:1 mapping. So creating a JVM Thread creates an OS Thread. A few things to know about OS Threads:
+- OS Threads are precious resources. Blocking a thread is is huge waste of this resource.
+- Creating hundreds of thousands of OS threads is not possible.
+- Switching between threads is expensive.
+
+An example:
 
 ```
 import scala.util.Try
@@ -32,6 +43,7 @@ def isBankPaymentWorking(bankID: String): Try[Boolean] = ???
 
 val userID: UserID = ???
 
+/*Here the JVM Thread is an OS Thread*/
 val result: Try[Boolean] = 
   fetchUserDetails(userID) // JVM Thread is blocked
     .flatMap(userDetails => fetchUPIDetails(userDetails.phone)) // JVM Thread is blocked
@@ -46,14 +58,6 @@ result match {
 ```
 If you look at the the methods `fetchUserDetails` `fetchUPIDetails` and `isBankPaymentWorking` you will notice that the thread is not doing any work there. It is just waiting. This IO is referred to as `Blocking IO`.
 
-Looking back at the differences in unit of concurrency: if we need to increase the throughput, i.e, the number of requests being handled at given point of time, then we need to increase the number of JVM Threads. Sounds reasonable. A million requests handled by a million JVM Threads.
-
-### The Problem
-
-The problem with scaling JVM Threads is that JVM Threads are just thin wrappers around OS threads. JVM Thread and OS Thread have a 1:1 mapping. So creating a JVM Thread creates an OS Thread. A few things to know about OS Threads:
-- OS Threads are precious resources. Blocking a thread is is huge waste of this resource.
-- Creating hundreds of thousands of OS threads is not possible.
-- Switching between threads is expensive.
 
 ### In comes Asynchronous NIO in JDK
 To combat the above problems asynchronous apis were introduced in the `java.nio` package. These go to great lengths to not block threads. The  thread is returned to the thread pool (with a callback registered) for the duration of the blocking call (external API or database call). There is an interrupt triggered when response is made available from the external call and the callback is invoked on another thread from the thread pool.
