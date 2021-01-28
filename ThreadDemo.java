@@ -5,17 +5,6 @@ import java.util.ArrayList;
 
 class ThreadDemo{
 
-	private static void resourceUseDemo() throws InterruptedException {
-		final AtomicInteger i = new AtomicInteger(0);
- 		for(int j = 0; j < 1000000; j++){
- 			new Thread(() -> i.incrementAndGet()).start();
- 		}
-
- 		Thread.sleep(5000);
-
- 		System.out.println("The value of i is " + i);
-	}
-
 	private static void outOfMemoryDemo() {
 		List<Thread> ts = new ArrayList<Thread>();
 		for(int j = 0; j < 25000; j++){
@@ -41,6 +30,6 @@ class ThreadDemo{
 	}
 	
 	public static void main(String[] args) throws InterruptedException{
-		outOfMemoryDemo(); 
+		outOfMemoryDemo();
 	}
 }

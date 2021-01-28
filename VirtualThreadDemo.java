@@ -4,23 +4,12 @@ import java.util.ArrayList;
 
 class VirtualThreadDemo{
 
-	private static void resourceUseDemo() throws InterruptedException {
-		final AtomicInteger i = new AtomicInteger(0);
- 		for(int j = 0; j < 1000000; j++){
- 			Thread.startVirtualThread(() -> i.incrementAndGet());
- 		}
-
- 		Thread.sleep(5000);
-
- 		System.out.println("The value of i is " + i);
-	}
-
 	private static void outOfMemoryDemo() {
 		List<Thread> ts = new ArrayList<Thread>();
 		for(int j = 0; j < 1000000; j++){
  			Thread t = Thread.startVirtualThread(() -> {
  				try{
- 					Thread.sleep(5000);
+ 					Thread.sleep(2000);
  				}catch(InterruptedException e){
  					System.out.println("exception " + e);
  				}
